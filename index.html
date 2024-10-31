@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мастера на карте Баку</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        #map { height: 500px; width: 100%; }
+        .filter-container {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="filter-container">
+    <label for="categoryFilter">Выберите категорию мастера:</label>
+    <select id="categoryFilter">
+        <option value="all">Все категории</option>
+        <option value="plumber">Сантехник</option>
+        <option value="electrician">Электрик</option>
+        <option value="carpenter">Плотник</option>
+    </select>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    // Инициализация карты над Баку
+    const map = L.map('map').setView([40.409264, 49.867092], 12); // Центр - Баку, Азербайджан
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Данные мастеров (12 меток)
+    const masters = [
+        { name: "Иванов Исмаил", category: "plumber", phone: "+994 55 123-45-67", coords: [40.409264, 49.867092] },
+        { name: "Гасанов Мамед", category: "electrician", phone: "+994 70 234-56-78", coords: [40.419264, 49.877092] },
+        { name: "Рагимов Ариф", category: "carpenter", phone: "+994 77 345-67-89", coords: [40.399264, 49.857092] },
+        { name: "Алиев Анар", category: "plumber", phone: "+994 55 987-65-43", coords: [40.429264, 49.847092] },
+        { name: "Мехтиев Камал", category: "electrician", phone: "+994 50 765-43-21", coords: [40.409264, 49.847092] },
+        { name: "Керимов Фарид", category: "carpenter", phone: "+994 70 876-54-32", coords: [40.419264, 49.867092] },
+        { name: "Ахмедов Эльдар", category: "plumber", phone: "+994 77 234-56-78", coords: [40.429264, 49.857092] },
+        { name: "Набиев Вугар", category: "electrician", phone: "+994 55 456-78-90", coords: [40.399264, 49.847092] },
+        { name: "Рзаев Вахид", category: "carpenter", phone: "+994 70 654-32-10", coords: [40.409264, 49.877092] },
+        { name: "Садыгов Руслан", category: "plumber", phone: "+994 50 123-98-76", coords: [40.389264, 49.857092] },
+        { name: "Гулиев Фуад", category: "electrician", phone: "+994 55 876-54-32", coords: [40.419264, 49.887092] },
+        { name: "Тагиев Самир", category: "carpenter", phone: "+994 77 543-21-09", coords: [40.429264, 49.867092] }
+    ];
+
+    // Создание маркеров для мастеров
+    const markers = [];
+    masters.forEach(master => {
+        const marker = L.marker(master.coords).addTo(map);
+        marker.category = master.category;
+
+        // Создаем элемент с информацией о мастере
+        const info = `<strong>${master.name}</strong><br>Категория: ${master.category}<br>Телефон: ${master.phone}`;
+        
+        // Показываем всплывающее окно при наведении
+        marker.on('mouseover', function(e) {
+            marker.bindPopup(info, { closeButton: false }).openPopup();
+        });
+
+        // Закрываем всплывающее окно, когда указатель уходит с метки
+        marker.on('mouseout', function() {
+            marker.closePopup();
+        });
+
+        markers.push(marker);
+    });
+
+    // Фильтрация мастеров по категории
+    const categoryFilter = document.getElementById("categoryFilter");
+    categoryFilter.addEventListener("change", function() {
+        const selectedCategory = categoryFilter.value;
+        markers.forEach(marker => {
+            if (selectedCategory === "all" || marker.category === selectedCategory) {
+                marker.addTo(map); // Показать маркер
+            } else {
+                map.removeLayer(marker); // Скрыть маркер
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
